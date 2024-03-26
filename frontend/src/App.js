@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './App.css'; // Import your CSS file for styling
 
 function App() {
   const [data, setData] = useState([]);
@@ -33,12 +34,13 @@ function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    console.log(itemToEdit)
+    
     if (editing) {
       await axios.put(`http://localhost:5000/items/${itemToEdit._id}`, form);
       setEditing(false);
     } else {
+      form._id = null;
+      console.log(form._id);
       await axios.post('http://localhost:5000/items', form);
     }
 
@@ -47,7 +49,8 @@ function App() {
   };
 
   return (
-    <div>
+    <div className="container">
+      <h1>Product Manager</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -55,24 +58,32 @@ function App() {
           value={form.name}
           onChange={handleInputChange}
           placeholder="Name"
+          required // Add required attribute for form validation
         />
         <input
-          type="text"
+          type="number"
           name="price"
           value={form.price}
           onChange={handleInputChange}
-          placeholder="price"
+          placeholder="Price"
+          required // Add required attribute for form validation
         />
-        <button type="submit">{editing ? 'Update' : 'Submit'}</button>
+        <button type="submit" className={editing ? 'update-btn' : 'submit-btn'}>
+          {editing ? 'Update' : 'Submit'}
+        </button>
       </form>
-      {data.map((item) => (
-        <div key={item._id}>
-          <p>Name: {item.name}</p>
-          <p>price: {item.price}</p>
-          <button onClick={() => handleEdit(item)}>Edit</button>
-          <button onClick={() => handleDelete(item._id)}>Delete</button>
-        </div>
-      ))}
+      <div className="product-list">
+        {data.map((item) => (
+          <div key={item._id} className="product-item">
+            <p><strong>Name:</strong> {item.name}</p>
+            <p><strong>Price:</strong> ${item.price}</p>
+            <div className="button-container">
+              <button onClick={() => handleEdit(item)} className="edit-btn">Edit</button>
+              <button onClick={() => handleDelete(item._id)} className="delete-btn">Delete</button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
